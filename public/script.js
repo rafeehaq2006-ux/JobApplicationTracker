@@ -1,4 +1,9 @@
 const jobButtons = document.querySelectorAll(".jobButton");
+const home = document.querySelector("#homebutton");
+
+home.addEventListener("click", () => {
+    window.location.href = `/dashboard`;
+});
 
 jobButtons.forEach((button) => {
     button.addEventListener("click", () =>{
