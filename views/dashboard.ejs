@@ -5,33 +5,105 @@
         <%- include("./partials/nav.ejs") %>
         <div id="dashboardContainer">
             <div id="savedLater" class="column">
-                <div class="columnheading">Saved for Later</div>
-                <div class="jobsContainer"></div>
+                <div class="columnheading">Saved for Later(<%= savedJobs.length %>)</div>
+                <div class="jobsContainer">
+                    <% if(savedJobs.length > 0) { %>
+                        <% savedJobs.forEach(job => { %>
+                            <button class="jobButton">
+                                <div class="TitleButton"><%= job.job_title %></div>
+                                <div class="CompanyButton"><%= job.company_name %></div>
+                                <div class="locationButton"><%= job.location %></div>
+                            </button>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty">No Jobs in this Catergory</div>
+                    <% } %>
+                </div>
             </div>
             
             <div id="Applied" class="column">
-                <div class="columnheading">Applied</div>
-                <div class="jobsContainer"></div>
+                <div class="columnheading">Applied(<%= appliedJobs.length %>)</div>
+                <div class="jobsContainer">
+                    <% if(appliedJobs.length > 0) { %>
+                        <% appliedJobs.forEach(job => { %>
+                            <button class="jobButton">
+                                <div class="TitleButton"><%= job.job_title %></div>
+                                <div class="CompanyButton"><%= job.company_name %></div>
+                                <div class="locationButton"><%= job.location %></div>
+                            </button>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty">No Jobs in this Catergory</div>
+                    <% } %>
+                </div>
             </div>
 
             <div id="OnlineAssess" class="column">
-                <div class="columnheading">Online Assessment</div>
-                <div class="jobsContainer"></div>
+                <div class="columnheading">Online Assessment(<%= onlineassesJobs.length %>)</div>
+                <div class="jobsContainer">
+                    <% if(onlineassesJobs.length > 0) { %>
+                        <% onlineassesJobs.forEach(job => { %>
+                            <button class="jobButton">
+                                <div class="TitleButton"><%= job.job_title %></div>
+                                <div class="CompanyButton"><%= job.company_name %></div>
+                                <div class="locationButton"><%= job.location %></div>
+                            </button>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty">No Jobs in this Catergory</div>
+                    <% } %>
+                </div>
             </div>
 
             <div id="Interviewing" class="column">
-                <div class="columnheading">Interviewing</div>
-                <div class="jobsContainer"></div>
+                <div class="columnheading">Interviewing(<%= interviewJobs.length %>)</div>
+                <div class="jobsContainer">
+                    <% if(interviewJobs.length > 0) { %>
+                        <% interviewJobs.forEach(job => { %>
+                            <button class="jobButton">
+                                <div class="TitleButton"><%= job.job_title %></div>
+                                <div class="CompanyButton"><%= job.company_name %></div>
+                                <div class="locationButton"><%= job.location %></div>
+                            </button>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty">No Jobs in this Catergory</div>
+                    <% } %>
+                </div>
             </div>
 
             <div id="OfferRec" class="column">
-                <div class="columnheading">Offer Recieved</div>
-                <div class="jobsContainer"></div>
+                <div class="columnheading">Offer Recieved(<%= offeredJobs.length %>)</div>
+                <div class="jobsContainer">
+                    <% if(offeredJobs.length > 0) { %>
+                        <% offeredJobs.forEach(job => { %>
+                            <button class="jobButton">
+                                <div class="TitleButton"><%= job.job_title %></div>
+                                <div class="CompanyButton"><%= job.company_name %></div>
+                                <div class="locationButton"><%= job.location %></div>
+                            </button>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty">No Jobs in this Catergory</div>
+                    <% } %>
+                </div>
             </div>
 
             <div id="Rejected" class="column">
-                <div class="columnheading">Rejected</div>
-                <div class="jobsContainer"></div>
+                <div class="columnheading">Rejected(<%= rejectedJobs.length %>)</div>
+                <div class="jobsContainer">
+                    <% if(rejectedJobs.length > 0) { %>
+                        <% rejectedJobs.forEach(job => { %>
+                            <button class="jobButton">
+                                <div class="TitleButton"><%= job.job_title %></div>
+                                <div class="CompanyButton"><%= job.company_name %></div>
+                                <div class="locationButton"><%= job.location %></div>
+                            </button>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty">No Jobs in this Catergory</div>
+                    <% } %>
+                </div>
             </div>
         </div>
     </body>
