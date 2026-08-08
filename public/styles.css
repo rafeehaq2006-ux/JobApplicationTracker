@@ -1,0 +1,264 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: #1c1c1e;
+    color: #f5f5f5;
+    font-family: 'Nunito', Arial, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3,
+#heading,
+.page-heading,
+.columnheading,
+#JobTitle {
+    font-family: 'Quicksand', 'Nunito', Arial, sans-serif;
+}
+
+#dashboardContainer {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+}
+
+.column {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 140px);
+    border-left: 2px dashed #4a4a4d;
+    border-right: 2px dashed #4a4a4d;
+    box-sizing: border-box;
+}
+
+.column:first-child {
+    border-left: none;
+}
+
+.column:last-child {
+    border-right: none;
+}
+
+.columnheading {
+    text-align: center;
+    padding: 16px 8px 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    letter-spacing: 0.01em;
+}
+
+.jobsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px 10px 16px;
+    flex: 1;
+}
+
+.jobButton {
+    width: calc(100% - 12px);
+    margin: 0 auto;
+    background-color: #232326;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    font-weight: 600;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.jobButton:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18), 0 8px 14px rgba(0, 0, 0, 0.3);
+}
+
+.jobButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18), 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Bright, bubbly color options — assigned randomly per job button
+   in the EJS templates (see dashboard.ejs), not by position. */
+.job-yellow { background-color: #FFD93D; color: #1c1c1e; }
+.job-green  { background-color: #6BCB77; color: #1c1c1e; }
+.job-pink   { background-color: #FF6FB5; color: #1c1c1e; }
+.job-blue   { background-color: #4DA8FF; color: #fff; }
+.job-orange { background-color: #FFA65C; color: #1c1c1e; }
+.job-purple { background-color: #B983FF; color: #fff; }
+.job-teal   { background-color: #5CE1E6; color: #1c1c1e; }
+
+.empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+
+#JobDetailsContainer {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 24px;
+    background-color: #232326;
+    border: 3px solid #ffd54f;
+    border-radius: 10px;
+    color: #f5f5f5;
+}
+
+#JobTitle,
+#companyname {
+    display: inline-block;
+    width: 49%;
+    vertical-align: top;
+}
+
+#JobTitle {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+#companyname {
+    text-align: right;
+    font-size: 1.1rem;
+    color: #bbb;
+}
+
+#JobDescription,
+#Requirements {
+    margin-top: 18px;
+}
+
+#Salary,
+#location {
+    display: inline-block;
+    margin-top: 18px;
+    margin-right: 24px;
+    color: #ddd;
+}
+
+/* ---------- Navigation ---------- */
+
+.navigationbar {
+    padding: 20px 24px 18px;
+    background-color: #232326;
+    border-bottom: none;
+    position: relative;
+    z-index: 2;
+    /* soft drop shadow + faint top highlight for a raised, 3D edge
+       between the nav and the content below instead of a hard line */
+    box-shadow:
+        0 10px 18px -6px rgba(0, 0, 0, 0.55),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+#heading {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #fff;
+    margin-bottom: 14px;
+}
+
+.nav-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Home button: forced onto its own centered row above the other
+   nav actions via flex-basis + order, regardless of source order,
+   and restyled so it no longer looks like a button. */
+#homebutton {
+    order: -1;
+    flex-basis: 100%;
+    text-align: center;
+    align-self: center;
+    margin: 0 0 14px;
+
+    background: none;
+    border: none;
+    padding: 4px 0;
+    box-shadow: none;
+
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+#homebutton:hover {
+    background: none;
+    color: #ffd54f;
+    border-bottom-color: #ffd54f;
+}
+
+#newJobManual,
+#AutoFill {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+#newJobManual:hover,
+#AutoFill:hover {
+    background-color: #eee;
+}
+
+.page-heading {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 20px 0 10px;
+    color: #fff;
+}
+
+.top-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 0 20px 20px;
+}
+
+.top-actions a,
+.top-actions button {
+    background-color: #232326;
+    color: #fff;
+    border: 1px solid #4a4a4d;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.top-actions a:hover,
+.top-actions button:hover {
+    background-color: #2d2d30;
+}

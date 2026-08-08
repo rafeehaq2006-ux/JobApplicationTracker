@@ -3,13 +3,15 @@
     <%- include("./partials/head.ejs") %>
     <body>
         <%- include("./partials/nav.ejs") %>
+        <% const jobColors = ['job-yellow', 'job-green', 'job-pink', 'job-blue', 'job-orange', 'job-purple', 'job-teal']; %>
+        <% const randomJobColor = () => jobColors[Math.floor(Math.random() * jobColors.length)]; %>
         <div id="dashboardContainer">
             <div id="savedLater" class="column">
                 <div class="columnheading">Saved for Later(<%= savedJobs.length %>)</div>
                 <div class="jobsContainer">
                     <% if(savedJobs.length > 0) { %>
                         <% savedJobs.forEach(job => { %>
-                            <button class="jobButton" data-id="<%= job.job_id %>">
+                            <button class="jobButton <%= randomJobColor() %>" data-id="<%= job.job_id %>">
                                 <div class="TitleButton"><%= job.job_title %></div>
                                 <div class="CompanyButton"><%= job.company_name %></div>
                                 <div class="locationButton"><%= job.location %></div>
@@ -26,7 +28,7 @@
                 <div class="jobsContainer">
                     <% if(appliedJobs.length > 0) { %>
                         <% appliedJobs.forEach(job => { %>
-                            <button class="jobButton" data-id="<%= job.job_id %>">
+                            <button class="jobButton <%= randomJobColor() %>" data-id="<%= job.job_id %>">
                                 <div class="TitleButton"><%= job.job_title %></div>
                                 <div class="CompanyButton"><%= job.company_name %></div>
                                 <div class="locationButton"><%= job.location %></div>
@@ -43,7 +45,7 @@
                 <div class="jobsContainer">
                     <% if(onlineassesJobs.length > 0) { %>
                         <% onlineassesJobs.forEach(job => { %>
-                            <button class="jobButton" data-id="<%= job.job_id %>">
+                            <button class="jobButton <%= randomJobColor() %>" data-id="<%= job.job_id %>">
                                 <div class="TitleButton"><%= job.job_title %></div>
                                 <div class="CompanyButton"><%= job.company_name %></div>
                                 <div class="locationButton"><%= job.location %></div>
@@ -60,7 +62,7 @@
                 <div class="jobsContainer">
                     <% if(interviewJobs.length > 0) { %>
                         <% interviewJobs.forEach(job => { %>
-                            <button class="jobButton" data-id="<%= job.job_id %>">
+                            <button class="jobButton <%= randomJobColor() %>" data-id="<%= job.job_id %>">
                                 <div class="TitleButton"><%= job.job_title %></div>
                                 <div class="CompanyButton"><%= job.company_name %></div>
                                 <div class="locationButton"><%= job.location %></div>
@@ -77,7 +79,7 @@
                 <div class="jobsContainer">
                     <% if(offeredJobs.length > 0) { %>
                         <% offeredJobs.forEach(job => { %>
-                            <button class="jobButton" data-id="<%= job.job_id %>">
+                            <button class="jobButton <%= randomJobColor() %>" data-id="<%= job.job_id %>">
                                 <div class="TitleButton"><%= job.job_title %></div>
                                 <div class="CompanyButton"><%= job.company_name %></div>
                                 <div class="locationButton"><%= job.location %></div>
@@ -94,7 +96,7 @@
                 <div class="jobsContainer">
                     <% if(rejectedJobs.length > 0) { %>
                         <% rejectedJobs.forEach(job => { %>
-                            <button class="jobButton" data-id="<%= job.job_id %>">
+                            <button class="jobButton <%= randomJobColor() %>" data-id="<%= job.job_id %>">
                                 <div class="TitleButton"><%= job.job_title %></div>
                                 <div class="CompanyButton"><%= job.company_name %></div>
                                 <div class="locationButton"><%= job.location %></div>

@@ -25,7 +25,7 @@ async function getSavedJobs() {
 }
 
 async function getOfferedJobs() {
-    const { rows } = await pool.query("SELECT * FROM jobs WHERE tracking_status = 'Offer Recieved';");
+    const { rows } = await pool.query("SELECT * FROM jobs WHERE tracking_status = 'Offer Received';");
     return rows;
 }
 
@@ -35,7 +35,7 @@ async function getRejectedJobs() {
 }
 
 async function getOnlineAssesJobs() {
-    const { rows } = await pool.query("SELECT * FROM jobs WHERE tracking_status = 'Online Assessments';");
+    const { rows } = await pool.query("SELECT * FROM jobs WHERE tracking_status = 'Online Assessment';");
     return rows;
 }
 

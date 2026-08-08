@@ -8,7 +8,6 @@ async function getDashboard(req, res){
     const onlineassesJobs = await db.getOnlineAssesJobs();
     const interviewJobs = await db.getInterviewJobs();
 
-    console.log(appliedJobs);
     res.render("dashboard", { 
         appliedJobs,
         savedJobs,
@@ -16,13 +15,15 @@ async function getDashboard(req, res){
         rejectedJobs,
         onlineassesJobs,
         interviewJobs,
+        heading: "Job Dashboard"
      });
 }
 
 function getJobDetails(req, res){
     db.getJob(req.params.id)
     .then((result) => {
-        res.render("jobDetails", {job: result[0]});
+        const salaryfix = result[0].salary.replaceAll("œ", "£")
+        res.render("jobDetails", {job: result[0], heading: "Job Details", salary: salaryfix});
     })
     .catch((err) => {
         console.log(err);
