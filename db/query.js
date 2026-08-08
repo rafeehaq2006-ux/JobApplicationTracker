@@ -44,6 +44,7 @@ async function getInterviewJobs() {
     return rows;
 }
 
+
 module.exports = {
     getAllJobs,
     getJob,

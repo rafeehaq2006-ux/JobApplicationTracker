@@ -12,6 +12,11 @@
             <div id="Requirements">Requirements: <%= job.requirements %></div>
             <div id="Salary">Salary: <%= salary %></div>
             <div id="location">Location: <%= job.location %></div>
+            <div id="website">
+                <a href="<%= job.website.startsWith('http') ? job.website : 'https://' + job.website %>" target="_blank" rel="noopener noreferrer">
+                    <%= job.website %>
+                </a>
+            </div>
         </div>
     </body>
 </html>
