@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <%- include("./partials/head.ejs") %>
+    <body>
+        <%- include("./partials/head.ejs") %>
+        <div id="JobDetailsContainer">
+            <div id="JobTitle"><%= job.job_title %></div>
+            <div id="companyname"><%= job.company_name %></div>
+            <div id="JobDescription">Description: <%= job.description %></div>
+            <div id="Requirements">Requirements: <%= job.requirements %></div>
+            <div id="Salary">Salary: <%= job.salary %></div>
+            <div id="location">Location: <%= job.location %></div>
+        </div>
+    </body>
+</html>
