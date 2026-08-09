@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.get("/",dashboardController.getDashboard);
 router.get("/:id", dashboardController.getJobDetails);
+router.post("/",dashboardController.addNewJob);
 
 module.exports = router;

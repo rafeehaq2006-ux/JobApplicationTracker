@@ -44,6 +44,58 @@ async function getInterviewJobs() {
     return rows;
 }
 
+async function InsertNewJob(job) {
+    const query = `
+    INSERT INTO jobs (
+    company_name,
+    job_title,
+    description,
+    requirements,
+    tracking_status,
+    salary,
+    location,
+    website,
+    applied )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING *;`;
+
+    const values = [
+        job.company_name,
+        job.job_title,
+        job.description,
+        job.requirements,
+        job.tracking_status,
+        job.salary,
+        job.location,
+        job.website,
+        job.applied    
+    ];
+
+    try{
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    } catch (err){
+        console.error(err);
+    }
+};
+
+async function InsertTrackingInfo(jobid, updatedAt, tracking) {
+    const query = `
+    INSERT INTO tracking (
+    job_id,
+    status_update_at,
+    tracking_status)
+    VALUES ($1, $2, $3)`;
+    
+    const values = [
+        jobid,
+        updatedAt,
+        tracking
+    ];
+
+    await pool.query(query, values);
+};
+
 
 module.exports = {
     getAllJobs,
@@ -54,4 +106,6 @@ module.exports = {
     getRejectedJobs,
     getOnlineAssesJobs,
     getInterviewJobs,
+    InsertNewJob,
+    InsertTrackingInfo,
 }
