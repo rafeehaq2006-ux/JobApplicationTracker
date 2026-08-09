@@ -14,6 +14,18 @@ app.get("/", (req, res) => {
     res.redirect("/dashboard");
 });
 
-app.use("/dashboard", dashboardRoutes)
+app.use("/dashboard", dashboardRoutes);
+app.use((req, res) => {
+    res.status(404).render("error", { heading: "Error", errormessage: "Page not found" });
+});
+
+app.use((err, req, res, next) => {
+    console.error(err);
+    const status = err.status || 500;
+    res.status(status).render("error", {
+        heading: "Error",
+        errormessage: err.message || "An unexpected error occurred."
+    });
+});
 
 app.listen(PORT);

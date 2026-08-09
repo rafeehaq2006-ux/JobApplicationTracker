@@ -1,5 +1,5 @@
 <div class="navigationbar">
-    <div id="heading"><%= heading %></div>
+    <div id="heading"><%= typeof heading !== "undefined" ? heading : "" %></div>
     <div class="nav-actions">
         <button id="homebutton">Home</button>
         <button id="newJobManual">+ New Job Manually</button>

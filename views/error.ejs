@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include("./partials/head.ejs") %>
+    <body>
+        <%- include("./partials/nav.ejs") %>
+        <div class="errormessagecontainer">
+            <div class="errormessage"><%= errormessage || "An unexpected error occurred." %></div>
+        </div>
+    </body>
+</html>

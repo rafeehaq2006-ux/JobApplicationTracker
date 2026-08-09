@@ -74,28 +74,6 @@ async function UpdateJobInfo(job) {
     }
 }
 
-async function updateTracking(job_id, tracking_status, status){
-    const query = `
-    INSERT INTO tracking (
-    job_id,
-    status_update_at,
-    tracking_status )
-    VALUES ($1, $2, $3)
-    RETURNING *;`;
-    
-    const values = [
-        job_id,
-        status,
-        tracking_status
-    ];
-
-    try {
-        const { rows } = await pool.query(query, values);
-        return rows[0];
-    } catch(err){
-        console.log(err);
-    };
-}
 
 async function InsertNewJob(job) {
     const query = `
@@ -132,26 +110,6 @@ async function InsertNewJob(job) {
     }
 };
 
-async function updateTrackingID(trackingid, jobid) {
-    const query = `
-    UPDATE jobs
-    SET
-        tracking_id = $1
-    WHERE job_id = $2;`;
-    
-    const values = [
-        trackingid,
-        jobid
-    ];
-
-    try {
-        await pool.query(query, values);
-    } catch (err) {
-        console.log(err);
-        throw err;
-    }
-}
-
 
 module.exports = {
     getAllJobs,
@@ -163,7 +121,5 @@ module.exports = {
     getOnlineAssesJobs,
     getInterviewJobs,
     InsertNewJob,
-    updateTrackingID,
-    updateTracking,
     UpdateJobInfo,
 }
