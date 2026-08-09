@@ -3,6 +3,7 @@ require('dotenv').config();
 const db = require("../db/query");
 const z = require("zod");
 
+
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
 });
@@ -25,19 +26,20 @@ async function AIretrieveJobInfo (website){
     const jobSchema = z.fromJSONSchema(jobJsonSchema);
 
     const prompt = `This is a link to a website that a user as entered and this input is intended to be for a job: 
-    ${website}. Visit this website and extract the following information for me: The job's title, the company, 
+    ${website}. Use the provided URL as the primary source and extract the following information for me: The job's title, the company, 
     the description of the job, the requirements the company is asking for the job, the salary, and the location 
     the job will be at. I want this returned in a JSON format. If you are unable to find anything for any of the 
     information then return an empty string for its attribute. The format will be the following {job_title: "the job's
     title", company_name: "the company name", description: "the description of the job within the website", requirements: 
     "the requirements of the job the employer is asking for", salary: "the salary they have listed for the job", location: 
-    "the location the job is in", website_work: "true if website worked, false if it did not"} If the website link does not work 
-    or is faulty set website_work to false and set all the other attributes to an empty string and still return the JSON.`
+    "the location the job is in", website_work: " boolean true if website worked, false if it did not"} If the website link does not work 
+    or is faulty set website_work to boolean false and set all the other attributes to an empty string and still return the JSON.`
 
     try{
         const interaction = await ai.interactions.create({
-            model : "gemini-3.5-flash-lite",
+            model : "gemini-3.6-flash",
             input: prompt,
+            tools: [{ type: "google_search" }],
             response_format: {
                 type: "text",
                 mime_type: "application/json",
