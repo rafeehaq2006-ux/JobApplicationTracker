@@ -3,6 +3,7 @@ const home = document.querySelector("#homebutton");
 const newManualJob = document.querySelector("#newJobManual");
 const newAIJob = document.querySelector("#AutoFill");
 const editJob = document.querySelector("#editJobButton");
+const deleteJob = document.querySelector("#deleteJobButton");
 
 home.addEventListener("click", () => {
     window.location.href = `/dashboard`;
@@ -17,6 +18,18 @@ jobButtons.forEach((button) => {
         }
     });
 });
+
+if (deleteJob) {
+    deleteJob.addEventListener("click", (e) => {
+        const endpoint = `/dashboard/${deleteJob.dataset.id}`;
+    fetch(endpoint, {
+        method:  "DELETE"
+    })
+    .then((response) => response.json())
+    .then((data) => window.location.href = data.redirect)
+    .catch(err => console.log(err));
+    })
+}
 
 if (editJob){
     editJob.addEventListener("click", async () => {

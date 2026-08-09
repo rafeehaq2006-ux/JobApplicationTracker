@@ -160,7 +160,6 @@ async function makeEditChanges(req, res) {
 
         req.body.job_id = req.params.id;
 
-        console.log(req.body);
         await db.UpdateJobInfo(req.body);
 
         res.redirect(`/dashboard/${req.params.id}`);
@@ -170,6 +169,16 @@ async function makeEditChanges(req, res) {
         res.status(500).render("error", { errormessage: "Failed to update job." });
     }
 }
+
+async function deleteJob(req, res) {
+    try {
+        await db.deleteJob(req.params.id);
+        res.json({ redirect: "/dashboard" });
+    } catch(err){
+        console.error(err);
+        res.render("error", { errormessage: "Failed to delete job." });
+    }
+}
 module.exports = {
     getDashboard,
     getJobDetails,
@@ -177,4 +186,5 @@ module.exports = {
     autoJobFill,
     editJob,
     makeEditChanges,
+    deleteJob
 }

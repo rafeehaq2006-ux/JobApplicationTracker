@@ -9,4 +9,5 @@ router.post("/new-job-manual",dashboardController.addNewJob);
 router.post("/new-job-auto", dashboardController.autoJobFill);
 router.get("/edit-info/:id", dashboardController.editJob);
 router.post("/edit/:id",dashboardController.makeEditChanges);
+router.delete("/:id",dashboardController.deleteJob);
 module.exports = router;

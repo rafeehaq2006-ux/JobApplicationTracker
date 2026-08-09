@@ -110,6 +110,20 @@ async function InsertNewJob(job) {
     }
 };
 
+async function deleteJob(jobId) {
+    const query = `
+        DELETE FROM jobs
+        WHERE job_id = $1;
+    `;
+
+    try{
+        await pool.query(query, [jobId]);
+    }
+    catch(err){
+        console.log(err);
+    }
+
+}
 
 module.exports = {
     getAllJobs,
@@ -122,4 +136,5 @@ module.exports = {
     getInterviewJobs,
     InsertNewJob,
     UpdateJobInfo,
+    deleteJob,
 }
