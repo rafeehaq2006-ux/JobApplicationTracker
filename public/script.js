@@ -1,6 +1,7 @@
 const jobButtons = document.querySelectorAll(".jobButton");
 const home = document.querySelector("#homebutton");
 const newManualJob = document.querySelector("#newJobManual");
+const newAIJob = document.querySelector("#AutoFill");
 
 home.addEventListener("click", () => {
     window.location.href = `/dashboard`;
@@ -38,7 +39,7 @@ const JOB_FORM_FIELDS = [
     { id: "requirements", label: "Requirements", type: "textarea" },
 ];
 
-function buildJobFormField(field) {
+function buildJobFormField(field, prefillValue) {
     const group = document.createElement("div");
     group.className = "form-group";
 
@@ -77,11 +78,17 @@ function buildJobFormField(field) {
         input.id = field.id;
         input.name = field.id;
         input.rows = 4;
+        if (prefillValue) {
+            input.value = prefillValue;
+        }
     } else {
         input = document.createElement("input");
         input.type = "text";
         input.id = field.id;
         input.name = field.id;
+        if (prefillValue) {
+            input.value = prefillValue;
+        }
     }
 
     if (field.required) {
@@ -106,7 +113,7 @@ function handleJobFormKeydown(event) {
     }
 }
 
-function openNewJobForm() {
+function openNewJobForm(prefillData = {}) {
     // Avoid stacking multiple overlays if triggered more than once
     if (document.querySelector(".modal-overlay")) {
         return;
@@ -135,13 +142,20 @@ function openNewJobForm() {
 
     card.appendChild(header);
 
+    if (prefillData.website_work === false) {
+        const errorMessage = document.createElement("div");
+        errorMessage.className = "job-form-error";
+        errorMessage.textContent = "Error Occurred! Website entered may be faulty. Please try autofill later. For now enter data manually.";
+        card.appendChild(errorMessage);
+    }
+
     const form = document.createElement("form");
     form.className = "job-form";
     form.method = "POST";
-    form.action = "/dashboard";
+    form.action = "/dashboard/new-job-manual";
 
     JOB_FORM_FIELDS.forEach((field) => {
-        form.appendChild(buildJobFormField(field));
+        form.appendChild(buildJobFormField(field, prefillData[field.id]));
     });
 
     const actions = document.createElement("div");
@@ -176,5 +190,109 @@ function openNewJobForm() {
 }
 
 if (newManualJob) {
-    newManualJob.addEventListener("click", openNewJobForm);
+    newManualJob.addEventListener("click", () => openNewJobForm());
+}
+
+// ---------- Auto-fill from website overlay ----------
+
+function openAutoFillForm() {
+    if (document.querySelector(".modal-overlay")) {
+        return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    const card = document.createElement("div");
+    card.className = "modal-card";
+
+    const header = document.createElement("div");
+    header.className = "modal-header";
+
+    const title = document.createElement("h2");
+    title.textContent = "Auto Fill From Website";
+    header.appendChild(title);
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "modal-close";
+    closeButton.setAttribute("aria-label", "Close");
+    closeButton.textContent = "\u00d7";
+    closeButton.addEventListener("click", closeJobFormOverlay);
+    header.appendChild(closeButton);
+
+    card.appendChild(header);
+
+    const form = document.createElement("form");
+    form.className = "job-form";
+    form.method = "POST";
+    form.action = "/dashboard/new-job-auto";
+
+    form.appendChild(buildJobFormField({ id: "website", label: "Website", type: "text", required: true }));
+
+    const actions = document.createElement("div");
+    actions.className = "modal-actions";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.type = "button";
+    cancelButton.className = "modal-cancel";
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", closeJobFormOverlay);
+    actions.appendChild(cancelButton);
+
+    const submitButton = document.createElement("button");
+    submitButton.type = "submit";
+    submitButton.className = "modal-submit";
+    submitButton.textContent = "Fetch Details";
+    actions.appendChild(submitButton);
+
+    form.appendChild(actions);
+
+    // Unlike the manual job form, this one needs to stay on the page:
+    // it sends the website off, gets job details back, then hands them
+    // to the manual form as placeholders. So the submit is intercepted
+    // rather than left as a normal browser POST.
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        try {
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            const response = await fetch(form.action, {
+                method: form.method,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            const jobData = await response.json();
+
+            closeJobFormOverlay();
+            openNewJobForm(jobData);
+        } catch (error) {
+            console.error("Auto-fill failed:", error);
+        }
+    });
+
+    card.appendChild(form);
+    overlay.appendChild(card);
+
+    overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) {
+            closeJobFormOverlay();
+        }
+    });
+
+    document.body.appendChild(overlay);
+    document.addEventListener("keydown", handleJobFormKeydown);
+}
+
+if (newAIJob) {
+    newAIJob.addEventListener("click", openAutoFillForm);
 }

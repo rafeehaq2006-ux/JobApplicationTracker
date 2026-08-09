@@ -169,20 +169,22 @@ h1, h2, h3,
     display: inline-block;
     width: 49%;
     vertical-align: top;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 #JobTitle {
     font-size: 1.6rem;
     font-weight: 700;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 #companyname {
     text-align: right;
     font-size: 1.1rem;
     color: #bbb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #JobDescription,
@@ -384,6 +386,13 @@ h1, h2, h3,
 
 .modal-close:hover {
     color: #ffd54f;
+}
+
+.job-form-error {
+    color: #ff5c5c;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: -8px 0 16px;
 }
 
 .job-form {
