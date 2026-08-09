@@ -89,10 +89,13 @@ function getJobDetails(req, res){
 }
 
 async function addNewJob(req, res){
+    let applied;
     if (req.body.applied === "") {
-    req.body.applied = new Date().toISOString();
+        req.body.applied = null;
+        applied = new Date().toISOString();
     } else {
-        req.body.applied = new Date(req.body.applied).toISOString();
+        applied = new Date(req.body.applied).toISOString();
+        req.body.applied = applied;
     };
 
     const newJob ={
@@ -108,19 +111,15 @@ async function addNewJob(req, res){
     }
 
     const row = await db.InsertNewJob(newJob)
-    if (req.body.tracking_status === "Applied"){
-        db.InsertTrackingInfo(row.job_id,req.body.applied,req.body.tracking_status)
-        .then((result) => res.redirect(`/dashboard/${row.job_id}`))
-        .catch((err) => console.log(err));
-    } else {
-        db.InsertTrackingInfo(row.job_id, new Date().toISOString(),req.body.tracking_status)
-        .then((result) => res.redirect(`/dashboard/${row.job_id}`))
-        .catch((err) => console.log(err));
-    };
+    db.InsertTrackingInfo(row.job_id,applied,req.body.tracking_status)
+    .then((result) => {
+        db.updateTrackingID(result.tracking_id,row.job_id);
+        res.redirect(`/dashboard/${row.job_id}`);
+    })
+    .catch((err) => console.log(err));
 }
 
 async function autoJobFill(req, res){
-    console.log(req.body.website);
     AIretrieveJobInfo(req.body.website)
     .then((result) => {
         res.json(result);
@@ -128,9 +127,61 @@ async function autoJobFill(req, res){
     .catch((err) => console.log(err));
 }
 
+async function editJob(req, res) {
+    db.getJob(req.params.id)
+    .then((result) => {
+        console.log(result[0]);
+        res.json(result[0]);
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
+
+async function makeEditChanges(req, res) {
+    try {
+        const tracking = (await db.getJob(req.params.id))[0];
+
+        let applied;
+
+        if (req.body.applied === "") {
+            req.body.applied = null;
+            applied = new Date().toISOString();
+        } else {
+            applied = new Date(req.body.applied).toISOString();
+            req.body.applied = applied;
+        }
+
+        req.body.job_id = req.params.id;
+
+        if (tracking.tracking_status !== req.body.tracking_status) {
+            const result = await db.updateTracking(
+                req.body.job_id,
+                req.body.tracking_status,
+                applied
+            );
+
+            await db.updateTrackingID(
+                result.tracking_id,
+                tracking.job_id
+            );
+        }
+
+        console.log(req.body);
+        await db.UpdateJobInfo(req.body);
+
+        res.redirect(`/dashboard/${req.params.id}`);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Failed to update job");
+    }
+}
 module.exports = {
     getDashboard,
     getJobDetails,
     addNewJob,
     autoJobFill,
+    editJob,
+    makeEditChanges,
 }

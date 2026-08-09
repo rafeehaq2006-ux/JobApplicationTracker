@@ -2,10 +2,12 @@ const jobButtons = document.querySelectorAll(".jobButton");
 const home = document.querySelector("#homebutton");
 const newManualJob = document.querySelector("#newJobManual");
 const newAIJob = document.querySelector("#AutoFill");
+const editJob = document.querySelector("#editJobButton");
 
 home.addEventListener("click", () => {
     window.location.href = `/dashboard`;
 });
+
 
 jobButtons.forEach((button) => {
     button.addEventListener("click", () =>{
@@ -15,6 +17,23 @@ jobButtons.forEach((button) => {
         }
     });
 });
+
+if (editJob){
+    editJob.addEventListener("click", async () => {
+        if (editJob.dataset.id){
+            try {
+                const response = await fetch(`/dashboard/edit-info/${editJob.dataset.id}`);
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+                const jobData = await response.json();
+                openNewJobForm(jobData, true);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    });
+};
 
 // ---------- New Job form overlay ----------
 
@@ -39,6 +58,15 @@ const JOB_FORM_FIELDS = [
     { id: "requirements", label: "Requirements", type: "textarea" },
 ];
 
+function toDatetimeLocalValue(value) {
+    const date = new Date(value);
+    if (isNaN(date.getTime())) {
+        return "";
+    }
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 function buildJobFormField(field, prefillValue) {
     const group = document.createElement("div");
     group.className = "form-group";
@@ -59,13 +87,16 @@ function buildJobFormField(field, prefillValue) {
         placeholder.value = "";
         placeholder.textContent = "Select an option";
         placeholder.disabled = true;
-        placeholder.selected = true;
+        placeholder.selected = !prefillValue;
         input.appendChild(placeholder);
 
         field.options.forEach((optionText) => {
             const option = document.createElement("option");
             option.value = optionText;
             option.textContent = optionText;
+            if (prefillValue && optionText === prefillValue) {
+                option.selected = true;
+            }
             input.appendChild(option);
         });
     } else if (field.type === "datetime") {
@@ -73,6 +104,9 @@ function buildJobFormField(field, prefillValue) {
         input.type = "datetime-local";
         input.id = field.id;
         input.name = field.id;
+        if (prefillValue) {
+            input.value = toDatetimeLocalValue(prefillValue);
+        }
     } else if (field.type === "textarea") {
         input = document.createElement("textarea");
         input.id = field.id;
@@ -113,7 +147,7 @@ function handleJobFormKeydown(event) {
     }
 }
 
-function openNewJobForm(prefillData = {}) {
+function openNewJobForm(prefillData = {},editing) {
     // Avoid stacking multiple overlays if triggered more than once
     if (document.querySelector(".modal-overlay")) {
         return;
@@ -129,7 +163,12 @@ function openNewJobForm(prefillData = {}) {
     header.className = "modal-header";
 
     const title = document.createElement("h2");
-    title.textContent = "Add New Job";
+    if(!editing){
+        title.textContent = "Add New Job";
+    } else{
+        title.textContent = "Editing Job";
+    };
+        
     header.appendChild(title);
 
     const closeButton = document.createElement("button");
@@ -152,7 +191,12 @@ function openNewJobForm(prefillData = {}) {
     const form = document.createElement("form");
     form.className = "job-form";
     form.method = "POST";
-    form.action = "/dashboard/new-job-manual";
+    if (!editing){
+        form.action = "/dashboard/new-job-manual";
+    } else{
+        form.action = `/dashboard/edit/${prefillData.job_id}`;
+    }
+    
 
     JOB_FORM_FIELDS.forEach((field) => {
         form.appendChild(buildJobFormField(field, prefillData[field.id]));

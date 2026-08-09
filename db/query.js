@@ -5,10 +5,6 @@ async function getAllJobs(){
     return rows;
 }
 
-async function insertNewJobs(jobobj){
-
-}
-
 async function getJob(id){
     const { rows } = await pool.query("SELECT * FROM jobs WHERE job_id = $1", [id]);
     return rows;
@@ -42,6 +38,63 @@ async function getOnlineAssesJobs() {
 async function getInterviewJobs() {
     const { rows } = await pool.query("SELECT * FROM jobs WHERE tracking_status = 'Interviewing';");
     return rows;
+}
+
+async function UpdateJobInfo(job) {
+    const query = `
+        UPDATE jobs
+        SET
+            company_name = $1,
+            job_title = $2,
+            description = $3,
+            requirements = $4,
+            applied = $5,
+            tracking_status = $6,
+            salary = $7,
+            location = $8
+        WHERE job_id = $9;`;
+
+    const values = [
+        job.company_name,
+        job.job_title,
+        job.description,
+        job.requirements,
+        job.applied,
+        job.tracking_status,
+        job.salary,
+        job.location,
+        job.job_id
+    ];
+
+    try{
+        await pool.query(query, values);
+    } catch(err){
+        console.log(err);
+        throw err;
+    }
+}
+
+async function updateTracking(job_id, tracking_status, status){
+    const query = `
+    INSERT INTO tracking (
+    job_id,
+    status_update_at,
+    tracking_status )
+    VALUES ($1, $2, $3)
+    RETURNING *;`;
+    
+    const values = [
+        job_id,
+        status,
+        tracking_status
+    ];
+
+    try {
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    } catch(err){
+        console.log(err);
+    };
 }
 
 async function InsertNewJob(job) {
@@ -79,22 +132,25 @@ async function InsertNewJob(job) {
     }
 };
 
-async function InsertTrackingInfo(jobid, updatedAt, tracking) {
+async function updateTrackingID(trackingid, jobid) {
     const query = `
-    INSERT INTO tracking (
-    job_id,
-    status_update_at,
-    tracking_status)
-    VALUES ($1, $2, $3)`;
+    UPDATE jobs
+    SET
+        tracking_id = $1
+    WHERE job_id = $2;`;
     
     const values = [
-        jobid,
-        updatedAt,
-        tracking
+        trackingid,
+        jobid
     ];
 
-    await pool.query(query, values);
-};
+    try {
+        await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
 
 
 module.exports = {
@@ -107,5 +163,7 @@ module.exports = {
     getOnlineAssesJobs,
     getInterviewJobs,
     InsertNewJob,
-    InsertTrackingInfo,
+    updateTrackingID,
+    updateTracking,
+    UpdateJobInfo,
 }

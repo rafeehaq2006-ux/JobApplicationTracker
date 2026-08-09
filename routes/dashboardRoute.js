@@ -7,5 +7,6 @@ router.get("/",dashboardController.getDashboard);
 router.get("/:id", dashboardController.getJobDetails);
 router.post("/new-job-manual",dashboardController.addNewJob);
 router.post("/new-job-auto", dashboardController.autoJobFill);
-
+router.get("/edit-info/:id", dashboardController.editJob);
+router.post("/edit/:id",dashboardController.makeEditChanges);
 module.exports = router;
