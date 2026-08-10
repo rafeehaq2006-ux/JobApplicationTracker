@@ -5,15 +5,46 @@ const newAIJob = document.querySelector("#AutoFill");
 const editJob = document.querySelector("#editJobButton");
 const deleteJob = document.querySelector("#deleteJobButton");
 
-home.addEventListener("click", () => {
-    window.location.href = `/dashboard`;
-});
+// ---------- Helpers ----------
 
+function setButtonLoading(button, isLoading, loadingText = "Processing...") {
+    if (isLoading) {
+        button.dataset.originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner"></span>${loadingText}`;
+    } else {
+        button.disabled = false;
+        if (button.dataset.originalText) {
+            button.innerHTML = button.dataset.originalText;
+        }
+    }
+}
+
+function showFullScreenLoading(message = "Loading...") {
+    if (document.getElementById("fullscreen-loading")) return;
+
+    const overlay = document.createElement("div");
+    overlay.id = "fullscreen-loading";
+    overlay.innerHTML = `
+        <div class="large-spinner"></div>
+        <p>${message}</p>
+    `;
+    document.body.appendChild(overlay);
+}
+
+// ---------- Event Listeners ----------
+
+if (home) {
+    home.addEventListener("click", () => {
+        window.location.href = `/dashboard`;
+    });
+}
 
 jobButtons.forEach((button) => {
-    button.addEventListener("click", () =>{
+    button.addEventListener("click", () => {
         const job_id = button.dataset.id;
-        if(job_id) {
+        if (job_id) {
+            showFullScreenLoading("Loading Job Details...");
             window.location.href = `/dashboard/${job_id}`;
         }
     });
@@ -21,32 +52,38 @@ jobButtons.forEach((button) => {
 
 if (deleteJob) {
     deleteJob.addEventListener("click", (e) => {
+        showFullScreenLoading("Deleting Job...");
         const endpoint = `/dashboard/${deleteJob.dataset.id}`;
-    fetch(endpoint, {
-        method:  "DELETE"
-    })
-    .then((response) => response.json())
-    .then((data) => window.location.href = data.redirect)
-    .catch(err => console.log(err));
-    })
+        fetch(endpoint, {
+            method: "DELETE"
+        })
+        .then((response) => response.json())
+        .then((data) => window.location.href = data.redirect)
+        .catch(err => console.log(err));
+    });
 }
 
-if (editJob){
+if (editJob) {
     editJob.addEventListener("click", async () => {
-        if (editJob.dataset.id){
+        if (editJob.dataset.id) {
             try {
+                showFullScreenLoading("Loading Job for Edit...");
                 const response = await fetch(`/dashboard/edit-info/${editJob.dataset.id}`);
                 if (!response.ok) {
                     throw new Error(`Request failed with status ${response.status}`);
                 }
                 const jobData = await response.json();
+                const loadingOverlay = document.getElementById("fullscreen-loading");
+                if (loadingOverlay) loadingOverlay.remove();
                 openNewJobForm(jobData, true);
             } catch (err) {
                 console.log(err);
+                const loadingOverlay = document.getElementById("fullscreen-loading");
+                if (loadingOverlay) loadingOverlay.remove();
             }
         }
     });
-};
+}
 
 // ---------- New Job form overlay ----------
 
@@ -223,6 +260,7 @@ function openDuplicateConfirmOverlay(action, payload) {
     yesButton.className = "modal-submit";
     yesButton.textContent = "Yes, Add It";
     yesButton.addEventListener("click", async () => {
+        setButtonLoading(yesButton, true, "Adding Job...");
         try {
             const data = await submitJobFormData(action, { ...payload, forceAdd: true });
             if (data.redirect) {
@@ -230,6 +268,7 @@ function openDuplicateConfirmOverlay(action, payload) {
             }
         } catch (err) {
             console.error(err);
+            setButtonLoading(yesButton, false);
         }
     });
     actions.appendChild(yesButton);
@@ -247,8 +286,7 @@ function openDuplicateConfirmOverlay(action, payload) {
     document.addEventListener("keydown", handleJobFormKeydown);
 }
 
-function openNewJobForm(prefillData = {},editing) {
-    // Avoid stacking multiple overlays if triggered more than once
+function openNewJobForm(prefillData = {}, editing = false) {
     if (document.querySelector(".modal-overlay")) {
         return;
     }
@@ -263,11 +301,11 @@ function openNewJobForm(prefillData = {},editing) {
     header.className = "modal-header";
 
     const title = document.createElement("h2");
-    if(!editing){
+    if (!editing) {
         title.textContent = "Add New Job";
-    } else{
+    } else {
         title.textContent = "Editing Job";
-    };
+    }
         
     header.appendChild(title);
 
@@ -291,12 +329,11 @@ function openNewJobForm(prefillData = {},editing) {
     const form = document.createElement("form");
     form.className = "job-form";
     form.method = "POST";
-    if (!editing){
+    if (!editing) {
         form.action = "/dashboard/new-job-manual";
-    } else{
+    } else {
         form.action = `/dashboard/edit/${prefillData.job_id}`;
     }
-    
 
     JOB_FORM_FIELDS.forEach((field) => {
         form.appendChild(buildJobFormField(field, prefillData[field.id]));
@@ -315,18 +352,19 @@ function openNewJobForm(prefillData = {},editing) {
     const submitButton = document.createElement("button");
     submitButton.type = "submit";
     submitButton.className = "modal-submit";
-    if(!editing){
+    if (!editing) {
         submitButton.textContent = "Add Job";
-    } else{
+    } else {
         submitButton.textContent = "Save Changes";
-    };
+    }
     actions.appendChild(submitButton);
 
     form.appendChild(actions);
 
-    if (!editing) {
-        form.addEventListener("submit", async (event) => {
+    form.addEventListener("submit", async (event) => {
+        if (!editing) {
             event.preventDefault();
+            setButtonLoading(submitButton, true, "Checking Duplicates...");
 
             try {
                 const formData = new FormData(form);
@@ -342,9 +380,12 @@ function openNewJobForm(prefillData = {},editing) {
                 }
             } catch (error) {
                 console.error("Failed to add job:", error);
+                setButtonLoading(submitButton, false);
             }
-        });
-    }
+        } else {
+            setButtonLoading(submitButton, true, "Saving Changes...");
+        }
+    });
 
     card.appendChild(form);
     overlay.appendChild(card);
@@ -418,12 +459,9 @@ function openAutoFillForm() {
 
     form.appendChild(actions);
 
-    // Unlike the manual job form, this one needs to stay on the page:
-    // it sends the website off, gets job details back, then hands them
-    // to the manual form as placeholders. So the submit is intercepted
-    // rather than left as a normal browser POST.
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
+        setButtonLoading(submitButton, true, "Fetching Details...");
 
         try {
             const formData = new FormData(form);
@@ -447,6 +485,7 @@ function openAutoFillForm() {
             openNewJobForm(jobData);
         } catch (error) {
             console.error("Auto-fill failed:", error);
+            setButtonLoading(submitButton, false);
         }
     });
 

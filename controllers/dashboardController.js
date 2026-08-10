@@ -285,7 +285,6 @@ async function editJob(req, res) {
             return res.status(404).render("error", { errormessage: "Job not found for editing." });
         }
 
-        console.log(result[0]);
         res.json(result[0]);
     } catch (err) {
         console.error(err);
