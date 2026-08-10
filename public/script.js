@@ -329,7 +329,7 @@ function openAutoFillForm() {
             }
 
             const jobData = await response.json();
-
+            
             closeJobFormOverlay();
             openNewJobForm(jobData);
         } catch (error) {

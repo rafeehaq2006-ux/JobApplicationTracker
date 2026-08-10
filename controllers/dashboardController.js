@@ -9,24 +9,25 @@ const ai = new GoogleGenAI({
 });
 
 async function AIretrieveJobInfo (req, res, website){
-    let htmlText = "";
+    let cleanedMarkdown = "";
     let websiteWork = false;
 
     try {
-        const result = await fetch(website);
-    
+        const result = await fetch(`https://r.jina.ai/${website}`, {
+            headers: {
+                "Accept": "text/event-stream",
+            },
+        });
 
-        const rawHtml = await result.text();
-        htmlText = rawHtml
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-            .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
-            .replace(/<[^>]+>/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-        websiteWork = htmlText.length >100
+        if (result.ok){
+            cleanedMarkdown = await result.text();
+            websiteWork = cleanedMarkdown.length > 100;
+        }
     } catch(err){
-        websiteWork = false;
+       console.error("Jina Fetch Error:", err);
+       websiteWork = false;
     };
+    
     if (!websiteWork) {
         return {
         job_title: "",
@@ -46,18 +47,28 @@ async function AIretrieveJobInfo (req, res, website){
                 company_name: { type: "string", description: "The name of the Company the job is for." },
                 description: { type: "string", description: "A comprehensive summary of the job role, responsibilities, and team background. Do not summarize into 1 line; capture full detail." },
                 requirements: { type: "string", description: "Detailed list of all required skills, experience, qualifications, and education." },
-                salary: { type: "string", description: "Salary or compensation range listed, or empty string if not found." },
+                salary: { type: "string", description: "Salary or compensation range listed, or empty string if none provided." },
                 location: { type: "string", description: "Job location (e.g. City, Country, Remote)." },
-            }
+                website_work: { type: "boolean", description: "If job details were successfully retrieved then set to true, other wise set to false."}
+            },
+            required: [
+                "job_title",
+                "company_name",
+                "description",
+                "requirements",
+                "salary",
+                "location",
+                "website_work"
+                ],
         };
 
         const jobSchema = z.fromJSONSchema(jobJsonSchema);
 
-        const prompt = `Extract complete job details from the following webpage content:\n\nURL: ${website}\n\nContent:\n${htmlText}`
+        const prompt = `Extract complete job details from the following webpage markdown content:\n\nURL: ${website}\n\nContent:\n${cleanedMarkdown}`
 
         try{
             const interaction = await ai.interactions.create({
-                model : "gemini-3.5-flash",
+                model : "gemini-3.5-flash-lite",
                 input: prompt,
                 response_format: {
                     type: "text",
@@ -70,7 +81,6 @@ async function AIretrieveJobInfo (req, res, website){
             return {
                 ...newJob,
                 website:website,
-                website_work: true
             };
         } catch (error) {
             console.error(error);
@@ -79,6 +89,8 @@ async function AIretrieveJobInfo (req, res, website){
     }
 
 }
+
+
 
 async function getDashboard(req, res){
     try{
