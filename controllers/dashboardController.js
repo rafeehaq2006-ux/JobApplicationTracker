@@ -8,6 +8,103 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
 });
 
+async function AICheckDuplicate(newJob) {
+    try {
+        const allSavedJobs = await db.getAllJobs();
+        if (allSavedJobs.length>0){
+            const prompt = `
+                You are a job duplicate detector.
+
+                Determine whether NEW_JOB is already present in STORED_JOBS.
+
+                NEW_JOB:
+                ${JSON.stringify(newJob, null, 2)}
+
+                STORED_JOBS:
+                ${JSON.stringify(allSavedJobs, null, 2)}
+
+                A duplicate means that the NEW_JOB and an existing stored job represent the
+                same job posting, even if the data has been slightly changed, reformatted,
+                shortened, or rewritten.
+
+                For each stored job, evaluate the following:
+
+                1. COMPANY
+                The company must be the same, ignoring minor formatting differences.
+
+                2. LOCATION
+                The location must be the same.
+                Treat equivalent representations as the same location.
+                For example:
+                "London, UK" = "London, United Kingdom" = "London, London, United Kingdom".
+
+                If the jobs are genuinely in different locations, they are NOT duplicates.
+
+                3. JOB TITLE
+                Titles do not need to be exact.
+                Consider the meaning of the title and whether the titles describe the
+                same position.
+
+                4. DESCRIPTION
+                Compare the meaning and responsibilities of the descriptions.
+                Rewording, shortening, formatting changes, and minor omissions are expected.
+
+                5. REQUIREMENTS
+                Compare the requirements semantically.
+                Minor differences do not prevent a duplicate.
+
+                6. SALARY
+                Salary is supporting information only and does not need to match.
+
+                A job is a DUPLICATE when there is strong evidence that it is the same
+                posting. In particular, an exact or near-exact match on COMPANY + LOCATION
+                combined with a strongly matching JOB TITLE, DESCRIPTION, or REQUIREMENTS
+                should be considered a duplicate.
+
+                IMPORTANT:
+                Do NOT require every field to match.
+                Do NOT require descriptions to be identical.
+                Do NOT reject a duplicate because salary is missing or different.
+                Do NOT reject a duplicate because the title has additional information
+                such as a city, year, team name, or parenthetical text.
+
+                For example, these should be considered the same job:
+
+                Stored:
+                "2027 Data & Research Strategy Intern (Content Solutions Intern)"
+
+                New:
+                "2027 Data & Research Strategy Intern, London (2027 Content Solutions Intern - London)"
+
+                because they clearly describe the same position.
+
+                After comparing NEW_JOB against ALL STORED_JOBS, return true if ANY stored
+                job is a duplicate. Otherwise return false.
+
+                Return ONLY true or false.
+                `;
+            const interaction = await ai.interactions.create({
+                model : "gemini-3.5-flash-lite",
+                input: prompt,
+                response_format: {
+                    type: "text",
+                    mime_type: "application/json",
+                    schema: {
+                        type: "boolean"
+                    }
+                },
+            });
+
+            
+            const isDuplicate = JSON.parse(interaction.output_text);
+            return isDuplicate;
+        }
+    } catch (error) {
+       console.log(error);
+       return false; 
+    };
+}
+
 async function AIretrieveJobInfo (req, res, website){
     let cleanedMarkdown = "";
     let websiteWork = false;
@@ -155,11 +252,19 @@ async function addNewJob(req, res){
             applied: req.body.applied,
         };
 
+        let isDuplicate = false;
+        if (!req.body.forceAdd) {
+            isDuplicate = await AICheckDuplicate(newJob);
+        }
+        if (isDuplicate) {
+            return res.json({ duplicate: true });
+        }
+
         const row = await db.InsertNewJob(newJob);
-        res.redirect(`/dashboard/${row.job_id}`);
+        return res.json({ success: true, redirect: `/dashboard/${row.job_id}` });
     } catch (error) {
         console.error(error);
-        res.status(500).render("error", { errormessage: "Unable to add new job." });
+        res.status(500).json({ error: "Unable to add new job." });
     }
 }
 

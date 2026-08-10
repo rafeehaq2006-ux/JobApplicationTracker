@@ -160,6 +160,93 @@ function handleJobFormKeydown(event) {
     }
 }
 
+async function submitJobFormData(action, payload) {
+    const response = await fetch(action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+}
+
+function openDuplicateConfirmOverlay(action, payload) {
+    if (document.querySelector(".modal-overlay")) {
+        return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    const card = document.createElement("div");
+    card.className = "modal-card";
+
+    const header = document.createElement("div");
+    header.className = "modal-header";
+
+    const title = document.createElement("h2");
+    title.textContent = "Possible Duplicate";
+    header.appendChild(title);
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "modal-close";
+    closeButton.setAttribute("aria-label", "Close");
+    closeButton.textContent = "\u00d7";
+    closeButton.addEventListener("click", closeJobFormOverlay);
+    header.appendChild(closeButton);
+
+    card.appendChild(header);
+
+    const message = document.createElement("p");
+    message.textContent = "This appears to be a duplicate job, are you sure you want to add this?";
+    card.appendChild(message);
+
+    const actions = document.createElement("div");
+    actions.className = "modal-actions";
+
+    const noButton = document.createElement("button");
+    noButton.type = "button";
+    noButton.className = "modal-cancel";
+    noButton.textContent = "No";
+    noButton.addEventListener("click", closeJobFormOverlay);
+    actions.appendChild(noButton);
+
+    const yesButton = document.createElement("button");
+    yesButton.type = "button";
+    yesButton.className = "modal-submit";
+    yesButton.textContent = "Yes, Add It";
+    yesButton.addEventListener("click", async () => {
+        try {
+            const data = await submitJobFormData(action, { ...payload, forceAdd: true });
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    actions.appendChild(yesButton);
+
+    card.appendChild(actions);
+    overlay.appendChild(card);
+
+    overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) {
+            closeJobFormOverlay();
+        }
+    });
+
+    document.body.appendChild(overlay);
+    document.addEventListener("keydown", handleJobFormKeydown);
+}
+
 function openNewJobForm(prefillData = {},editing) {
     // Avoid stacking multiple overlays if triggered more than once
     if (document.querySelector(".modal-overlay")) {
@@ -228,10 +315,36 @@ function openNewJobForm(prefillData = {},editing) {
     const submitButton = document.createElement("button");
     submitButton.type = "submit";
     submitButton.className = "modal-submit";
-    submitButton.textContent = "Add Job";
+    if(!editing){
+        submitButton.textContent = "Add Job";
+    } else{
+        submitButton.textContent = "Save Changes";
+    };
     actions.appendChild(submitButton);
 
     form.appendChild(actions);
+
+    if (!editing) {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            try {
+                const formData = new FormData(form);
+                const payload = Object.fromEntries(formData.entries());
+
+                const data = await submitJobFormData(form.action, payload);
+
+                if (data.duplicate) {
+                    closeJobFormOverlay();
+                    openDuplicateConfirmOverlay(form.action, payload);
+                } else if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            } catch (error) {
+                console.error("Failed to add job:", error);
+            }
+        });
+    }
 
     card.appendChild(form);
     overlay.appendChild(card);
