@@ -5,7 +5,7 @@ const session = require("express-session");
 const PORT = process.env.PORT || 3000;
 const db = require("./db/query");
 const dashboardRoutes = require("./routes/dashboardRoute");
-const authRoutes = require("./routes/authRoute");
+const authRoutes = require("./routes/Authroute");
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
