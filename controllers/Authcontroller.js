@@ -8,10 +8,13 @@ const { web: googleWebConfig } = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "u
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
 
 function createOAuthClient() {
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+    const redirectUri = `${baseUrl}/oauth2callback`;
+
     return new google.auth.OAuth2(
         googleWebConfig.client_id,
         googleWebConfig.client_secret,
-        googleWebConfig.redirect_uris[0]
+        redirectUri
     );
 }
 
