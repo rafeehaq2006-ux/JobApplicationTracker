@@ -1,5 +1,5 @@
 const express = require("express");
-const authController = require("../controllers/authController");
+const authController = require("../controllers/Authcontroller");
 const router = express.Router();
 
 router.get("/auth/google", authController.startGoogleAuth);

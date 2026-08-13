@@ -3,7 +3,7 @@ require('dotenv').config();
 const db = require("../db/query");
 const z = require("zod");
 const { google } = require("googleapis");
-const { createOAuthClient } = require("./authController");
+const { createOAuthClient } = require("./AuthController");
 const { describe } = require('zod/v4/core');
 
 const ai = new GoogleGenAI({
