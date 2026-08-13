@@ -125,6 +125,76 @@ async function deleteJob(jobId) {
 
 }
 
+async function SelectEmail(emailaddress) {
+    const query = `
+    SELECT * FROM gmail WHERE email = $1;`;
+
+    const value = [emailaddress];
+
+    try {
+        const { rows } = await pool.query(query, value);
+        return rows[0];
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+async function updateSyncValue(emailaddress, newSync) {
+    const query=`
+    UPDATE gmail
+    SET lastsync = $1
+    WHERE email = $2;`;
+
+    const values = [
+        newSync,
+        emailaddress,
+    ]
+
+    try {
+        await pool.query(query, values);
+    } catch (err) {
+        console.error(err);
+    };
+};
+
+async function InsertNewEmail(emailaddress, newSync) {
+    const query = `
+    INSERT INTO gmail (
+    email,
+    lastsync
+    )
+    VALUES ($1, $2);`;
+
+    const values = [
+        emailaddress,
+        newSync,
+    ]
+
+    try {
+        await pool.query(query, values);
+    } catch (err) {
+        console.error(err);
+    };
+};
+
+async function UpdateTracking(job_id, tracking) {
+    const query = `
+    UPDATE jobs
+    SET tracking_status = $1
+    WHERE job_id = $2;`;
+
+    const values = [
+        tracking,
+        job_id,
+    ];
+
+    try {
+        await pool.query(query, values);
+    } catch (error) {
+        console.error(error);
+    };
+};
+
 module.exports = {
     getAllJobs,
     getJob,
@@ -137,4 +207,8 @@ module.exports = {
     InsertNewJob,
     UpdateJobInfo,
     deleteJob,
+    InsertNewEmail,
+    updateSyncValue,
+    SelectEmail,
+    UpdateTracking,
 }

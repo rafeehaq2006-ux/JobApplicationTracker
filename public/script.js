@@ -4,6 +4,29 @@ const newManualJob = document.querySelector("#newJobManual");
 const newAIJob = document.querySelector("#AutoFill");
 const editJob = document.querySelector("#editJobButton");
 const deleteJob = document.querySelector("#deleteJobButton");
+const syncEmail = document.querySelector("#gmail");
+
+if (syncEmail) {
+    syncEmail.addEventListener("click", async () => {
+        if (syncEmail.dataset.connected === "true") {
+            // Signed in -> sign out
+            setButtonLoading(syncEmail, true, "Signing Out...");
+            try {
+                await fetch("/auth/logout", { method: "POST" });
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+                setButtonLoading(syncEmail, false);
+            }
+        } else {
+            // Signed out -> kick off Google's OAuth consent screen.
+            // This has to be a full navigation, not a fetch, since the
+            // user needs to actually see and interact with that page.
+            showFullScreenLoading("Redirecting to Google...");
+            window.location.href = "/auth/google";
+        }
+    });
+}
 
 // ---------- Helpers ----------
 

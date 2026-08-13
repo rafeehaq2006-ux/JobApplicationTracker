@@ -4,6 +4,7 @@ const router = express.Router();
 
 
 router.get("/",dashboardController.getDashboard);
+router.get("/sync-emails", dashboardController.syncEmails);
 router.get("/:id", dashboardController.getJobDetails);
 router.post("/new-job-manual",dashboardController.addNewJob);
 router.post("/new-job-auto", dashboardController.autoJobFill);

@@ -276,6 +276,7 @@ h1, h2, h3,
     border-bottom-color: #ffd54f;
 }
 
+#gmail,
 #newJobManual,
 #AutoFill {
     background-color: #fff;
@@ -288,6 +289,7 @@ h1, h2, h3,
     font-family: inherit;
 }
 
+#gmail:hover,
 #newJobManual:hover,
 #AutoFill:hover {
     background-color: #eee;

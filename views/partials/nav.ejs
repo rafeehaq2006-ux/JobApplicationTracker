@@ -2,6 +2,9 @@
     <div id="heading"><%= typeof heading !== "undefined" ? heading : "" %></div>
     <div class="nav-actions">
         <button id="homebutton">Home</button>
+        <button id="gmail" data-connected="<%= gmailConnected ? 'true' : 'false' %>">
+            <%= gmailConnected ? "Sign Out of Gmail" : "Sign in with Gmail" %>
+        </button>
         <button id="newJobManual">+ New Job Manually</button>
         <button id="AutoFill">+ Auto Fill New Job</button>
     </div>
